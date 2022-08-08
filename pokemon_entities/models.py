@@ -1,4 +1,4 @@
-from django.db import models  # noqa F401
+from django.db import models
 
 
 class Pokemon(models.Model):
@@ -17,3 +17,6 @@ class PokemonEntity(models.Model):
 
     longitude = models.FloatField()
     latitude = models.FloatField()
+
+    appeared_at = models.DateTimeField(null=True, blank=True)
+    disappeared_at = models.DateTimeField(null=True, blank=True)
