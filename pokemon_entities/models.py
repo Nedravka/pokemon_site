@@ -26,3 +26,7 @@ class PokemonEntity(models.Model):
     attack = models.IntegerField(default=1)
     defence = models.IntegerField(default=1)
     stamina = models.IntegerField(default=1)
+
+    class Meta:
+        verbose_name = 'Pokemon entity'
+        verbose_name_plural = 'Pokemon entities'
