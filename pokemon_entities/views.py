@@ -29,20 +29,22 @@ def add_pokemon(folium_map, lat, lon, image_url=DEFAULT_IMAGE_URL):
 
 
 def show_all_pokemons(request):
-    with open('pokemon_entities/pokemons.json', encoding='utf-8') as database:
-        pokemons = json.load(database)['pokemons']
+    all_pokemons = PokemonEntity.objects.select_related('pokemon')
+
+    # with open('pokemon_entities/pokemons.json', encoding='utf-8') as database:
+    #     pokemons = json.load(database)['pokemons']
 
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=12)
-    for pokemon in pokemons:
-        for pokemon_entity in pokemon['entities']:
-            add_pokemon(
-                folium_map, pokemon_entity['lat'],
-                pokemon_entity['lon'],
-                pokemon['img_url']
-            )
+    for pokemon in all_pokemons:
+        # for pokemon_entity in pokemon['entities']:
+        add_pokemon(
+            folium_map, pokemon.latitude,
+            pokemon.longitude,
+            request.build_absolute_uri(pokemon.pokemon.pokemon_image.url)
+        )
 
     pokemons_on_page = []
-    all_pokemons = PokemonEntity.objects.select_related('pokemon')
+
     for pokemon in all_pokemons:
         pokemons_on_page.append({
             'pokemon_id': pokemon.id,
