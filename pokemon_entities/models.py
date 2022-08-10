@@ -4,6 +4,8 @@ from django.db import models
 class Pokemon(models.Model):
 
     title = models.CharField(max_length=200, blank=True)
+    title_en = models.CharField(max_length=200, blank=True, default='-')
+    title_jp = models.CharField(max_length=200, blank=True, default='-')
     description = models.TextField(default='no data', blank=True)
 
     pokemon_image = models.ImageField(upload_to='pokemon_image', null=True, blank=True)
