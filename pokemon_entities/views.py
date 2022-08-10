@@ -5,6 +5,7 @@ from django.db.models import Prefetch
 from django.http import HttpResponseNotFound
 from django.shortcuts import render
 from django.utils.timezone import localtime
+from django.core.exceptions import ObjectDoesNotExist
 
 from .models import Pokemon, PokemonEntity
 
@@ -69,13 +70,16 @@ def show_all_pokemons(request):
 
 def show_pokemon(request, pokemon_id):
 
-    pokemon_type = Pokemon.objects.prefetch_related(
+    pokemon_type = Pokemon.objects.select_related(
+        'evolved_from'
+    ).prefetch_related(
         Prefetch(
             'pokemonentity_set',
-            PokemonEntity.objects.filter(
+            queryset=PokemonEntity.objects.filter(
                 disappeared_at__gt=localtime(),
                 appeared_at__lte=localtime(),
-            )
+            ),
+            to_attr='pokemons'
         )
     ).get(
         id=int(pokemon_id),
@@ -83,17 +87,39 @@ def show_pokemon(request, pokemon_id):
 
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=12)
 
-    pokemons = pokemon_type.pokemonentity_set.all()
-
     pokemon = {
         'pokemon_id': pokemon_type.id,
         'title_ru': pokemon_type.title,
         'title_en': pokemon_type.title_en,
         'title_jp': pokemon_type.title_jp,
         'description': pokemon_type.description,
-        'img_url': request.build_absolute_uri(pokemon_type.pokemon_image.url)
+        'img_url': request.build_absolute_uri(pokemon_type.pokemon_image.url),
     }
-    for poke in pokemons:
+
+    try:
+        evolve_to = pokemon_type.evolve_to.get()
+        next_evol = {"next_evolution": {
+            "title_ru": evolve_to.title,
+            "pokemon_id": evolve_to.id,
+            "img_url": request.build_absolute_uri(evolve_to.pokemon_image.url),
+        }}
+        pokemon.update(next_evol)
+
+    except ObjectDoesNotExist:
+        pass
+
+    try:
+        prev_evol = {"previous_evolution": {
+            "title_ru": pokemon_type.evolved_from.title,
+            "pokemon_id": pokemon_type.evolved_from.id,
+            "img_url": request.build_absolute_uri(pokemon_type.evolved_from.pokemon_image.url),
+        }}
+        pokemon.update(prev_evol)
+
+    except AttributeError:
+        pass
+
+    for poke in pokemon_type.pokemons:
 
         add_pokemon(
             folium_map,

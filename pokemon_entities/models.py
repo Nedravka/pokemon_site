@@ -8,6 +8,15 @@ class Pokemon(models.Model):
     title_jp = models.CharField(max_length=200, blank=True, default='-')
     description = models.TextField(default='no data', blank=True)
 
+    evolved_from = models.ForeignKey(
+        'pokemon_entities.Pokemon',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='evolve_to',
+        default=None
+    )
+
     pokemon_image = models.ImageField(upload_to='pokemon_image', null=True, blank=True)
 
     def __str__(self):
