@@ -1,8 +1,6 @@
 import folium
-import json
 
 from django.db.models import Prefetch
-from django.http import HttpResponseNotFound
 from django.shortcuts import render
 from django.utils.timezone import localtime
 from django.core.exceptions import ObjectDoesNotExist
@@ -112,7 +110,9 @@ def show_pokemon(request, pokemon_id):
         prev_evol = {"previous_evolution": {
             "title_ru": pokemon_type.evolved_from.title,
             "pokemon_id": pokemon_type.evolved_from.id,
-            "img_url": request.build_absolute_uri(pokemon_type.evolved_from.pokemon_image.url),
+            "img_url": request.build_absolute_uri(
+                pokemon_type.evolved_from.pokemon_image.url
+            ),
         }}
         pokemon.update(prev_evol)
 
