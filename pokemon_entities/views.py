@@ -37,7 +37,7 @@ def show_all_pokemons(request):
         disappeared_at__gt=localtime(),
         appeared_at__lte=localtime(),
     )
-    pokemon_type = set(pokemon.pokemon for pokemon in all_pokemons)
+    pokemons_titles = set(pokemon.pokemon for pokemon in all_pokemons)
 
     for pokemon in all_pokemons:
 
@@ -49,7 +49,7 @@ def show_all_pokemons(request):
 
     pokemons_on_page = []
 
-    for pokemon in pokemon_type:
+    for pokemon in pokemons_titles:
         pokemons_on_page.append({
             'pokemon_id': pokemon.id,
             'img_url': (
@@ -85,7 +85,7 @@ def show_pokemon(request, pokemon_id):
 
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=12)
 
-    pokemon = {
+    pokemon_entity = {
         'pokemon_id': pokemon_type.id,
         'title_ru': pokemon_type.title,
         'title_en': pokemon_type.title_en,
@@ -101,7 +101,7 @@ def show_pokemon(request, pokemon_id):
             "pokemon_id": evolve_to.id,
             "img_url": request.build_absolute_uri(evolve_to.pokemon_image.url),
         }}
-        pokemon.update(next_evol)
+        pokemon_entity.update(next_evol)
 
     except ObjectDoesNotExist:
         pass
@@ -114,20 +114,20 @@ def show_pokemon(request, pokemon_id):
                 pokemon_type.evolved_from.pokemon_image.url
             ),
         }}
-        pokemon.update(prev_evol)
+        pokemon_entity.update(prev_evol)
 
     except AttributeError:
         pass
 
-    for poke in pokemon_type.pokemons:
+    for pokemon in pokemon_type.pokemons:
 
         add_pokemon(
             folium_map,
-            poke.latitude,
-            poke.longitude,
+            pokemon.latitude,
+            pokemon.longitude,
             request.build_absolute_uri(pokemon_type.pokemon_image.url)
         )
 
     return render(request, 'pokemon.html', context={
-        'map': folium_map._repr_html_(), 'pokemon': pokemon
+        'map': folium_map._repr_html_(), 'pokemon': pokemon_entity
     })
