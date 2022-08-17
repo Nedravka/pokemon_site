@@ -11,17 +11,14 @@ class Pokemon(models.Model):
     title_en = models.CharField(
         max_length=200,
         blank=True,
-        default='-',
         verbose_name='название на английском'
     )
     title_jp = models.CharField(
         max_length=200,
         blank=True,
-        default='-',
         verbose_name='название на японском'
     )
     description = models.TextField(
-        default='no data',
         blank=True,
         verbose_name='описание'
     )
@@ -32,7 +29,6 @@ class Pokemon(models.Model):
         blank=True,
         null=True,
         related_name='evolve_to',
-        default=None,
         verbose_name='предыдущая эволюция'
     )
 
@@ -76,11 +72,11 @@ class PokemonEntity(models.Model):
         verbose_name='пропадет'
     )
 
-    level = models.IntegerField(default=1, verbose_name='уровень')
-    health = models.IntegerField(default=1, verbose_name='здоровье')
-    attack = models.IntegerField(default=1, verbose_name='атака')
-    defence = models.IntegerField(default=1, verbose_name='защита')
-    stamina = models.IntegerField(default=1, verbose_name='выносливость')
+    level = models.IntegerField(verbose_name='уровень')
+    health = models.IntegerField(verbose_name='здоровье')
+    attack = models.IntegerField(verbose_name='атака')
+    defence = models.IntegerField(verbose_name='защита')
+    stamina = models.IntegerField(verbose_name='выносливость')
 
     class Meta:
         verbose_name = 'Pokemon entity'
