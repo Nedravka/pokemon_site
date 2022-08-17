@@ -33,18 +33,21 @@ def show_all_pokemons(request):
 
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=12)
 
-    all_pokemons = PokemonEntity.objects.select_related('pokemon').filter(
+    all_existing_pokemon_entities = PokemonEntity.objects.select_related(
+        'pokemon'
+    ).filter(
         disappeared_at__gt=localtime(),
         appeared_at__lte=localtime(),
     )
-    pokemons_titles = set(pokemon.pokemon for pokemon in all_pokemons)
+    pokemons_titles = set(pokemon_entity.pokemon for
+                          pokemon_entity in all_existing_pokemon_entities)
 
-    for pokemon in all_pokemons:
+    for pokemon_entity in all_existing_pokemon_entities:
 
         add_pokemon(
-            folium_map, pokemon.latitude,
-            pokemon.longitude,
-            request.build_absolute_uri(pokemon.pokemon.pokemon_image.url)
+            folium_map, pokemon_entity.latitude,
+            pokemon_entity.longitude,
+            request.build_absolute_uri(pokemon_entity.pokemon.image.url)
         )
 
     pokemons_on_page = []
@@ -53,8 +56,8 @@ def show_all_pokemons(request):
         pokemons_on_page.append({
             'pokemon_id': pokemon.id,
             'img_url': (
-                request.build_absolute_uri(pokemon.pokemon_image.url)
-                if pokemon.pokemon_image
+                request.build_absolute_uri(pokemon.image.url)
+                if pokemon.image
                 else None
             ),
             'title_ru': pokemon.title,
@@ -91,7 +94,7 @@ def show_pokemon(request, pokemon_id):
         'title_en': pokemon_type.title_en,
         'title_jp': pokemon_type.title_jp,
         'description': pokemon_type.description,
-        'img_url': request.build_absolute_uri(pokemon_type.pokemon_image.url),
+        'img_url': request.build_absolute_uri(pokemon_type.image.url),
     }
 
     try:
@@ -99,7 +102,7 @@ def show_pokemon(request, pokemon_id):
         next_evol = {"next_evolution": {
             "title_ru": evolve_to.title,
             "pokemon_id": evolve_to.id,
-            "img_url": request.build_absolute_uri(evolve_to.pokemon_image.url),
+            "img_url": request.build_absolute_uri(evolve_to.image.url),
         }}
         pokemon_entity.update(next_evol)
 
@@ -111,7 +114,7 @@ def show_pokemon(request, pokemon_id):
             "title_ru": pokemon_type.evolved_from.title,
             "pokemon_id": pokemon_type.evolved_from.id,
             "img_url": request.build_absolute_uri(
-                pokemon_type.evolved_from.pokemon_image.url
+                pokemon_type.evolved_from.image.url
             ),
         }}
         pokemon_entity.update(prev_evol)
@@ -125,7 +128,7 @@ def show_pokemon(request, pokemon_id):
             folium_map,
             pokemon.latitude,
             pokemon.longitude,
-            request.build_absolute_uri(pokemon_type.pokemon_image.url)
+            request.build_absolute_uri(pokemon_type.image.url)
         )
 
     return render(request, 'pokemon.html', context={

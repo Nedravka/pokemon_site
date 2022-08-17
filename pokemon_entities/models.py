@@ -32,7 +32,7 @@ class Pokemon(models.Model):
         verbose_name='предыдущая эволюция'
     )
 
-    pokemon_image = models.ImageField(
+    image = models.ImageField(
         upload_to='pokemon_image',
         null=True, blank=True,
         verbose_name='изображение покемона'
