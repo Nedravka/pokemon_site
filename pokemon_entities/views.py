@@ -75,7 +75,7 @@ def show_pokemon(request, pokemon_id):
         'evolved_from'
     ).prefetch_related(
         Prefetch(
-            'pokemon_entities',
+            'entities',
             queryset=PokemonEntity.objects.filter(
                 disappeared_at__gt=localtime(),
                 appeared_at__lte=localtime(),
